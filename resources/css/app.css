@@ -1,0 +1,449 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+   One palette, defined once, used by every screen. Colours are referenced
+   through these names rather than hard-coded utilities so the whole panel can
+   be rebranded from this block.
+   --------------------------------------------------------------------------- */
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif,
+        'Noto Color Emoji';
+    --font-bengali: 'Hind Siliguri', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+    /* Brand: deep indigo, chosen to stay legible against both surfaces. */
+    --color-brand-50: oklch(0.971 0.014 283);
+    --color-brand-100: oklch(0.936 0.032 282);
+    --color-brand-200: oklch(0.879 0.062 281);
+    --color-brand-300: oklch(0.799 0.103 280);
+    --color-brand-400: oklch(0.705 0.148 278);
+    --color-brand-500: oklch(0.615 0.182 277);
+    --color-brand-600: oklch(0.534 0.191 277);
+    --color-brand-700: oklch(0.461 0.17 277);
+    --color-brand-800: oklch(0.394 0.139 277);
+    --color-brand-900: oklch(0.337 0.11 277);
+    --color-brand-950: oklch(0.233 0.077 278);
+
+    --radius-card: 0.875rem;
+    --shadow-card: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 4px 16px -4px rgb(0 0 0 / 0.08);
+    --shadow-card-dark: 0 1px 2px 0 rgb(0 0 0 / 0.3), 0 4px 16px -4px rgb(0 0 0 / 0.4);
+}
+
+/* Semantic surface tokens, redefined for dark mode.
+   `--surface` is the page, `--panel` is a card on it, `--line` is any border. */
+:root {
+    --surface: oklch(0.977 0.003 265);
+    --surface-raised: oklch(1 0 0);
+    --panel: oklch(1 0 0);
+    --panel-muted: oklch(0.975 0.004 265);
+    --line: oklch(0.915 0.006 265);
+    --line-strong: oklch(0.855 0.008 265);
+    --ink: oklch(0.23 0.014 265);
+    --ink-muted: oklch(0.52 0.014 265);
+    --ink-subtle: oklch(0.64 0.012 265);
+    --card-shadow: var(--shadow-card);
+    color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme='light']) {
+        --surface: oklch(0.179 0.013 265);
+        --surface-raised: oklch(0.215 0.015 265);
+        --panel: oklch(0.223 0.015 265);
+        --panel-muted: oklch(0.256 0.016 265);
+        --line: oklch(0.312 0.016 265);
+        --line-strong: oklch(0.392 0.018 265);
+        --ink: oklch(0.96 0.005 265);
+        --ink-muted: oklch(0.74 0.012 265);
+        --ink-subtle: oklch(0.6 0.013 265);
+        --card-shadow: var(--shadow-card-dark);
+        color-scheme: dark;
+    }
+}
+
+:root[data-theme='dark'] {
+    --surface: oklch(0.179 0.013 265);
+    --surface-raised: oklch(0.215 0.015 265);
+    --panel: oklch(0.223 0.015 265);
+    --panel-muted: oklch(0.256 0.016 265);
+    --line: oklch(0.312 0.016 265);
+    --line-strong: oklch(0.392 0.018 265);
+    --ink: oklch(0.96 0.005 265);
+    --ink-muted: oklch(0.74 0.012 265);
+    --ink-subtle: oklch(0.6 0.013 265);
+    --card-shadow: var(--shadow-card-dark);
+    color-scheme: dark;
+}
+
+@layer base {
+    *,
+    *::before,
+    *::after {
+        border-color: var(--line);
+    }
+
+    html {
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        background-color: var(--surface);
+        color: var(--ink);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    /* Bengali copy needs a font with proper conjunct support. */
+    [lang='bn'],
+    .font-bn {
+        font-family: var(--font-bengali);
+    }
+
+    /* A visible focus ring on every interactive element: the panel is used
+       heavily by keyboard, and the legacy theme removed outlines entirely. */
+    :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+        outline: 2px solid var(--color-brand-500);
+        outline-offset: 2px;
+        border-radius: 0.375rem;
+    }
+
+    ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+    }
+
+    ::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: var(--line-strong);
+        border-radius: 9999px;
+        border: 2px solid var(--surface);
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   Components
+   --------------------------------------------------------------------------- */
+
+@layer components {
+    .card {
+        background-color: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: var(--radius-card);
+        box-shadow: var(--card-shadow);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .card-title {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: var(--ink);
+    }
+
+    .card-body {
+        padding: 1.25rem;
+    }
+
+    /* Buttons ------------------------------------------------------------- */
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.875rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.25rem;
+        border-radius: 0.5rem;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition: background-color 120ms, border-color 120ms, color 120ms, opacity 120ms;
+        white-space: nowrap;
+    }
+
+    .btn:disabled,
+    .btn[aria-disabled='true'] {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    .btn-primary {
+        background-color: var(--color-brand-600);
+        color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        background-color: var(--color-brand-700);
+    }
+
+    .btn-secondary {
+        background-color: var(--panel-muted);
+        border-color: var(--line);
+        color: var(--ink);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        border-color: var(--line-strong);
+    }
+
+    .btn-danger {
+        background-color: var(--color-rose-600);
+        color: #fff;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+        background-color: var(--color-rose-700);
+    }
+
+    .btn-ghost {
+        color: var(--ink-muted);
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+        background-color: var(--panel-muted);
+        color: var(--ink);
+    }
+
+    .btn-sm {
+        padding: 0.3125rem 0.625rem;
+        font-size: 0.8125rem;
+    }
+
+    .btn-lg {
+        padding: 0.6875rem 1.25rem;
+        font-size: 0.9375rem;
+    }
+
+    /* Forms --------------------------------------------------------------- */
+
+    .label {
+        display: block;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--ink-muted);
+        margin-bottom: 0.375rem;
+    }
+
+    .input,
+    .select,
+    .textarea {
+        display: block;
+        width: 100%;
+        padding: 0.5625rem 0.75rem;
+        font-size: 0.875rem;
+        color: var(--ink);
+        background-color: var(--surface-raised);
+        border: 1px solid var(--line-strong);
+        border-radius: 0.5rem;
+        transition: border-color 120ms, box-shadow 120ms;
+    }
+
+    .input::placeholder,
+    .textarea::placeholder {
+        color: var(--ink-subtle);
+    }
+
+    .input:focus,
+    .select:focus,
+    .textarea:focus {
+        border-color: var(--color-brand-500);
+        box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-brand-500) 18%, transparent);
+        outline: none;
+    }
+
+    .input[aria-invalid='true'],
+    .select[aria-invalid='true'] {
+        border-color: var(--color-rose-500);
+    }
+
+    .field-error {
+        margin-top: 0.3125rem;
+        font-size: 0.8125rem;
+        color: var(--color-rose-600);
+    }
+
+    .field-hint {
+        margin-top: 0.3125rem;
+        font-size: 0.8125rem;
+        color: var(--ink-subtle);
+    }
+
+    /* Tables -------------------------------------------------------------- */
+
+    .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 0.875rem;
+    }
+
+    .table thead th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: var(--panel-muted);
+        padding: 0.625rem 0.875rem;
+        text-align: left;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--ink-subtle);
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 0.6875rem 0.875rem;
+        border-bottom: 1px solid var(--line);
+        color: var(--ink);
+        vertical-align: middle;
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .table tbody tr:hover td {
+        background-color: var(--panel-muted);
+    }
+
+    /* Right-align money so columns of figures can be scanned. */
+    .table .num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: 'tnum';
+    }
+
+    /* Badges -------------------------------------------------------------- */
+
+    .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.125rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border-radius: 9999px;
+        border: 1px solid transparent;
+        white-space: nowrap;
+    }
+
+    /* Navigation ---------------------------------------------------------- */
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--ink-muted);
+        border-radius: 0.5rem;
+        transition: background-color 120ms, color 120ms;
+    }
+
+    .nav-link:hover {
+        background-color: var(--panel-muted);
+        color: var(--ink);
+    }
+
+    .nav-link-active {
+        background-color: color-mix(in oklch, var(--color-brand-500) 14%, transparent);
+        color: var(--color-brand-700);
+    }
+
+    :root[data-theme='dark'] .nav-link-active {
+        color: var(--color-brand-300);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        :root:not([data-theme='light']) .nav-link-active {
+            color: var(--color-brand-300);
+        }
+    }
+
+    .nav-section {
+        padding: 0.75rem 0.75rem 0.25rem;
+        font-size: 0.6875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--ink-subtle);
+    }
+
+    /* Stat tile ----------------------------------------------------------- */
+
+    .stat {
+        padding: 1.125rem 1.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--ink-muted);
+    }
+
+    .stat-value {
+        margin-top: 0.375rem;
+        font-size: 1.5rem;
+        font-weight: 650;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .stat-meta {
+        margin-top: 0.25rem;
+        font-size: 0.8125rem;
+        color: var(--ink-subtle);
+    }
+}
+
+@layer utilities {
+    .text-muted {
+        color: var(--ink-muted);
+    }
+
+    .text-subtle {
+        color: var(--ink-subtle);
+    }
+
+    .tnum {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Respect a reduced-motion preference everywhere. */
+    @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
